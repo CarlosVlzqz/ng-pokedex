@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PokemonService, PokemonDetail as IPokemonDetail, PokemonSpecies } from '../../services/pokemon';
-import { getColorSync } from 'colorthief';
+import { getColorSync, getPaletteSync } from 'colorthief';
 import { forkJoin } from 'rxjs';
 
 const TYPE_COLORS: Record<string, string> = {
@@ -39,21 +39,23 @@ export interface EvolutionLink {
 export class PokemonDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private pokemonService = inject(PokemonService);
-  
+
   pokemon = signal<IPokemonDetail | null>(null);
   description = signal<string>('');
   category = signal<string>('');
+  japaneseName = signal<string>('');
   activeTab = signal<'about' | 'stats' | 'matchups' | 'evolutions'>('about');
-  
+
   weaknesses = signal<Matchup[]>([]);
   resistances = signal<Matchup[]>([]);
   immunities = signal<Matchup[]>([]);
-  
+
   evolutions = signal<EvolutionLink[]>([]);
 
   isLoading = signal<boolean>(true);
   isShiny = signal<boolean>(false);
-  
+  evolutionsLoading = signal<boolean>(false);
+
   prevId = signal<number | null>(null);
   nextId = signal<number | null>(null);
   cardBackground = signal<string>('var(--bg-color)');
@@ -73,21 +75,25 @@ export class PokemonDetail implements OnInit {
     this.isLoading.set(true);
     this.isShiny.set(false);
     this.activeTab.set('about');
-    
+
     // Clear previous data
     this.evolutions.set([]);
     this.weaknesses.set([]);
     this.resistances.set([]);
     this.immunities.set([]);
+    this.japaneseName.set('');
+    this.description.set('');
+    this.category.set('');
 
     this.pokemonService.getPokemonDetail(nameOrId).subscribe({
       next: (data) => {
         this.pokemon.set(data);
         this.isLoading.set(false);
-        
+
         // Navigation IDs
+        const MAX_POKEMON_ID = 493; // Gen I–IV cap; increase to support later gens
         this.prevId.set(data.id > 1 ? data.id - 1 : null);
-        this.nextId.set(data.id < 493 ? data.id + 1 : null);
+        this.nextId.set(data.id < MAX_POKEMON_ID ? data.id + 1 : null);
 
         this.pokemonService.getPokemonSpecies(data.id).subscribe({
           next: (species) => {
@@ -98,6 +104,11 @@ export class PokemonDetail implements OnInit {
             const genusEntry = species.genera.find(g => g.language.name === 'en');
             if (genusEntry) {
               this.category.set(genusEntry.genus);
+            }
+            const jpName = species.names.find(n => n.language.name === 'ja-Hrkt')
+              ?? species.names.find(n => n.language.name === 'ja');
+            if (jpName) {
+              this.japaneseName.set(jpName.name);
             }
           }
         });
@@ -111,7 +122,7 @@ export class PokemonDetail implements OnInit {
 
   switchTab(tab: 'about' | 'stats' | 'matchups' | 'evolutions') {
     this.activeTab.set(tab);
-    
+
     if (tab === 'matchups' && this.weaknesses().length === 0) {
       this.loadMatchups();
     } else if (tab === 'evolutions' && this.evolutions().length === 0) {
@@ -161,16 +172,22 @@ export class PokemonDetail implements OnInit {
     const data = this.pokemon();
     if (!data) return;
 
+    this.evolutionsLoading.set(true);
     this.pokemonService.getPokemonSpecies(data.id).subscribe({
       next: (species) => {
         if (species.evolution_chain && species.evolution_chain.url) {
           this.pokemonService.getEvolutionChainByUrl(species.evolution_chain.url).subscribe({
             next: (evoChain) => {
               this.evolutions.set(this.parseEvolutions(evoChain.chain));
-            }
+              this.evolutionsLoading.set(false);
+            },
+            error: () => this.evolutionsLoading.set(false)
           });
+        } else {
+          this.evolutionsLoading.set(false);
         }
-      }
+      },
+      error: () => this.evolutionsLoading.set(false)
     });
   }
 
@@ -189,7 +206,7 @@ export class PokemonDetail implements OnInit {
   currentImageUrl() {
     const p = this.pokemon();
     if (!p) return '';
-    return this.isShiny() 
+    return this.isShiny()
       ? p.sprites.other['official-artwork'].front_shiny
       : p.sprites.other['official-artwork'].front_default;
   }
@@ -208,12 +225,12 @@ export class PokemonDetail implements OnInit {
         } else if (color && typeof (color as any).hex === 'function') {
           mainColor = (color as any).hex();
         }
-        
+
         const typeColors = p.types.map(t => TYPE_COLORS[t.type.name] || '#ccc');
-        
+
         const randomDegree = Math.floor(Math.random() * 360);
         const allColors = [mainColor, ...typeColors];
-        
+
         for (let i = allColors.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [allColors[i], allColors[j]] = [allColors[j], allColors[i]];
@@ -241,14 +258,14 @@ export class PokemonDetail implements OnInit {
     if (!id) return '';
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
   }
-  
+
 
 
   getEvolutionDetailsString(detailsResponse: any[]): string {
     if (!detailsResponse || detailsResponse.length === 0) return 'Unknown';
-    const details = detailsResponse[0]; 
+    const details = detailsResponse[0];
     if (!details || !details.trigger) return 'Unknown';
-    
+
     if (details.trigger.name === 'level-up') {
       if (details.min_level) return `Lvl ${details.min_level}`;
       if (details.min_happiness) return `High Friendship`;
@@ -266,10 +283,10 @@ export class PokemonDetail implements OnInit {
 
   parseEvolutions(node: any): EvolutionLink[] {
     const links: EvolutionLink[] = [];
-    
+
     const traverse = (currentNode: any) => {
       if (!currentNode.evolves_to || currentNode.evolves_to.length === 0) return;
-      
+
       const fromName = currentNode.species.name;
       const fromImage = this.getPokemonImageFromUrl(currentNode.species.url);
 
@@ -277,7 +294,7 @@ export class PokemonDetail implements OnInit {
         const toName = nextNode.species.name;
         const toImage = this.getPokemonImageFromUrl(nextNode.species.url);
         const details = this.getEvolutionDetailsString(nextNode.evolution_details);
-        
+
         links.push({
           fromName,
           fromImage,

@@ -1,20 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
-
 :root {
   --primary: #ef5350;
-  --bg-color: #EAEAEA; /* Light neutral gray */
+  --bg-color: #EAEAEA;
   --text-color: #212121;
-  --text-secondary: #666;
-  --panel-bg: rgba(255, 255, 255, 0.6);
+  --text-secondary: #342A1E;
+  --panel-bg: rgba(255, 255, 255, 0.25);
   --panel-border: rgba(255, 255, 255, 0.4);
   --card-shadow: rgba(0, 0, 0, 0.1);
 }
 
 body.dark-theme {
-  --bg-color: #151515; /* Techy dark gray */
+  --bg-color: #151515;
   --text-color: #f8fafc;
-  --text-secondary: #cbd5e1; /* Even lighter slate gray for better contrast */
-  --panel-bg: rgba(0, 0, 0, 0.25); /* Subtle dark tint */
+  --text-secondary: #cbd5e1;
+  --panel-bg: rgba(0, 0, 0, 0.25);
   --panel-border: rgba(255, 255, 255, 0.08);
   --card-shadow: rgba(0, 0, 0, 0.5);
 }
@@ -32,7 +30,7 @@ body {
   background-color: var(--primary);
   color: white;
   padding: 0.8rem 2rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .header-container {
@@ -75,4 +73,3 @@ body {
   max-width: 1200px;
   margin: 0 auto;
 }
-

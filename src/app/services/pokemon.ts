@@ -43,6 +43,10 @@ export interface PokemonSpecies {
     genus: string;
     language: { name: string };
   }>;
+  names: Array<{
+    name: string;
+    language: { name: string };
+  }>;
   evolution_chain: {
     url: string;
   };
