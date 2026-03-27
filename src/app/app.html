@@ -1,0 +1,17 @@
+<main>
+  <header class="app-header">
+    <div class="header-container">
+      <h1>Ng-Pokedex</h1>
+      <button class="theme-toggle" (click)="themeService.toggleTheme()" [title]="themeService.isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+        @if (themeService.isDarkMode()) {
+          <span class="theme-icon">☀️</span>
+        } @else {
+          <span class="theme-icon">🌙</span>
+        }
+      </button>
+    </div>
+  </header>
+  <div class="app-content">
+    <router-outlet></router-outlet>
+  </div>
+</main>

@@ -1,0 +1,117 @@
+<div class="controls-bar">
+  <div class="search-container">
+    <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <input
+      class="search-input"
+      type="text"
+      placeholder="Search by name or #..."
+      [value]="searchQuery()"
+      (input)="onSearch($event)"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    @if (searchQuery()) {
+      <button class="search-clear" (click)="searchQuery.set('')" title="Clear search">✕</button>
+    }
+  </div>
+
+  <!-- Type dropdown -->
+  <div class="type-dropdown-wrapper">
+    <button class="type-dropdown-btn" (click)="toggleDropdown()" [class.open]="dropdownOpen()">
+      <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+      Types
+      @if (selectedTypes().length > 0) {
+        <span class="dropdown-count">{{ selectedTypes().length }}</span>
+      }
+      <svg class="chevron" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+
+    @if (dropdownOpen()) {
+      <div class="type-dropdown-panel">
+        @for (type of allTypes; track type) {
+          <label class="type-option" [style.--chip-color]="getTypeColor(type)">
+            <input type="checkbox" [checked]="isTypeSelected(type)" (change)="toggleType(type)" />
+            <span class="type-option-dot"></span>
+            <span class="type-option-label">{{ type }}</span>
+          </label>
+        }
+        @if (selectedTypes().length > 0) {
+          <div class="dropdown-footer">
+            <button class="dropdown-clear" (click)="clearTypes()">Clear all</button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<div class="page-title-row">
+  <h2>Gen 1-4 Pokedex</h2>
+
+  <!-- Active type tags (dismissable) -->
+  @if (selectedTypes().length > 0) {
+    <div class="active-types">
+      @for (type of selectedTypes(); track type) {
+        <span class="active-type-tag" [style.--chip-color]="getTypeColor(type)">
+          {{ type }}
+          <button class="remove-type" (click)="removeType(type)" title="Remove {{ type }} filter">✕</button>
+        </span>
+      }
+    </div>
+  }
+</div>
+
+@if (isLoading()) {
+  <div class="loading-container">
+    <div class="spinner large"></div>
+    <span>Searching the Pokéverse...</span>
+  </div>
+} @else if (isLoadingType()) {
+  <div class="loading-container">
+    <div class="spinner large"></div>
+    <span>Filtering by {{ selectedTypes().join(', ') }}...</span>
+  </div>
+} @else {
+  @if (renderedPokemons().length === 0) {
+    <div class="no-results">
+      <span class="no-results-icon">🔍</span>
+      @if (searchQuery() && hasTypeFilter()) {
+        <p>No <strong>{{ selectedTypes().join(' / ') }}</strong>-type Pokémon found for <strong>"{{ searchQuery() }}"</strong></p>
+      } @else if (searchQuery()) {
+        <p>No Pokémon found for <strong>"{{ searchQuery() }}"</strong></p>
+      } @else {
+        <p>No Pokémon found.</p>
+      }
+      <small>Try a different name, number, or type.</small>
+    </div>
+  } @else {
+    <div class="pokemon-grid">
+      @for (pokemon of renderedPokemons(); track pokemon.name) {
+        <a [routerLink]="['/pokemon', pokemon.name]" class="pokemon-card">
+          <div class="pokemon-image-container">
+            <img [src]="getPokemonImage(pokemon.url)" [alt]="pokemon.name" loading="lazy">
+          </div>
+          <div class="pokemon-info">
+            <span class="pokemon-id">#{{ getPokemonIdPadded(pokemon.url) }}</span>
+            <h3 class="pokemon-name">{{ pokemon.name }}</h3>
+          </div>
+        </a>
+      }
+    </div>
+
+    @if (!hasAnyFilter() && isLoadingMore()) {
+      <div class="loading-more">
+        <div class="spinner"></div>
+        <span>Loading more Pokémon...</span>
+      </div>
+    }
+  }
+}
+
