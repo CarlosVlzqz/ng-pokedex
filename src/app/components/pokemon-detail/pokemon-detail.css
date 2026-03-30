@@ -86,19 +86,40 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
+  position: relative;
+  padding: 3rem 2rem 2rem;
+  min-height: 150px;
   overflow: hidden;
-  padding: 1.5rem 2rem 0;
 }
 
 .pokemon-name {
-  font-size: clamp(2rem, 6.5vw, 4rem);
+  font-size: clamp(3rem, 9vw, 5rem);
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   margin: 0;
-  line-height: 1;
   color: var(--text-color);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  position: relative;
+}
+
+.japanese-name {
+  font-family: 'Dela Gothic One', sans-serif;
+  font-size: clamp(8rem, 30vw, 15rem);
+  white-space: nowrap;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  color: var(--text-color);
+  opacity: 0.12;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .pokemon-id {
@@ -216,16 +237,16 @@
 }
 
 .id-bubble {
-  background-color: var(--panel-bg);
+  background-color: rgba(255, 255, 255, 0.1);
   color: var(--text-color);
-  border: 1px solid var(--panel-border);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(4px);
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   font-family: 'Share Tech Mono', monospace;
   font-weight: 700;
   font-size: 0.9rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -235,7 +256,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 12px;
+  padding: 6px 12px;
   border-radius: 4px;
   color: white;
   font-size: 0.75rem;
@@ -253,7 +274,7 @@
 }
 
 .type-badge.small {
-  padding: 2px 8px;
+  padding: 4px 8px;
   font-size: 0.65rem;
   min-width: 65px;
   height: 20px;
@@ -267,14 +288,13 @@
   background: var(--panel-bg);
   backdrop-filter: blur(12px);
   border-radius: 20px;
-  padding: 2rem;
+  padding: 2rem 2.5rem 2rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   box-shadow: 0 8px 32px var(--card-shadow);
   border: 1px solid var(--panel-border);
   height: 500px;
-  /* Fixed height for stability */
 }
 
 .types-item {
@@ -353,8 +373,6 @@
 }
 
 
-
-/* Tabs Navigation */
 .tabs-nav {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -371,7 +389,7 @@
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-color);
-  opacity: 0.7;
+  opacity: 0.85;
   padding: 0.75rem 0.1rem;
   cursor: pointer;
   position: relative;
@@ -409,10 +427,8 @@
   flex: 1;
   overflow-y: auto;
   padding-right: 0.5rem;
-  /* Space for scrollbar */
 }
 
-/* Custom Glassmorphism Scrollbar */
 .tab-content::-webkit-scrollbar {
   width: 6px;
 }
@@ -435,7 +451,6 @@
   background-clip: content-box;
 }
 
-/* Stats Tab */
 .stats-tab {
   gap: 1rem;
 }
@@ -483,7 +498,6 @@
   transition: width 0.5s ease;
 }
 
-/* Matchups Tab */
 .matchups-tab {
   gap: 1.5rem;
 }
@@ -528,7 +542,6 @@
   border-radius: 12px;
 }
 
-/* Evolutions Tab */
 .evolutions-tab {
   gap: 1.5rem;
 }
@@ -562,7 +575,6 @@
   transform: scale(1.1);
   filter: brightness(1.1);
 }
-
 
 .evo-mon img {
   width: 70px;
@@ -603,16 +615,4 @@
   text-transform: capitalize;
   margin-top: 0.3rem;
   text-align: center;
-}
-
-.japanese-name {
-  font-family: 'Dela Gothic One', sans-serif;
-  font-size: clamp(4.5rem, 18vw, 8.5rem);
-  letter-spacing: 0.04em;
-  line-height: 0.9;
-  color: var(--text-color);
-  margin: 0.3rem 0 0;
-  white-space: nowrap;
-  opacity: 0.9;
-  transition: 0.2s ease;
 }
