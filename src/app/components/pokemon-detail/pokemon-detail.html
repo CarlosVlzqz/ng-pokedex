@@ -27,32 +27,31 @@
   } @else if (pokemon(); as p) {
   <div class="pokemon-detail-card" [style.background]="cardBackground()">
 
-    <div class="card-header">
+    <header class="card-header">
+      <span class="pokemon-id">
+        NO. {{ p.id.toString().padStart(4, '0') }}
+      </span>
       <h2 class="pokemon-name">{{ p.name }}</h2>
-      @if (japaneseName()) {
-      <div class="japanese-name">{{ japaneseName() }}</div>
-      }
-    </div>
+      <div class="japanese-name" aria-hidden="true">{{ japaneseName() }}</div>
+    </header>
 
     <div class="card-body">
       <div class="card-left">
         <div class="main-portrait-container">
-          <img #pokemonImage [src]="currentImageUrl()" [alt]="p.name" class="detail-sprite" (load)="onImageLoad()"
-            crossorigin="anonymous">
+          <img #pokemonImage crossorigin="anonymous" class="detail-sprite" [src]="currentImageUrl()"
+            (load)="onImageLoad()" [alt]="'Official artwork of ' + p.name">
         </div>
         <div class="action-row">
-          <div class="id-bubble">#{{ p.id.toString().padStart(4, '0') }}</div>
-          <button class="cry-btn main-cry-btn"
-            (click)="playCry($event, 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/' + p.id + '.ogg')"
-            title="Play Cry">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-              stroke-linecap="round" stroke-linejoin="round">
+          <button class="cry-btn main-cry-btn" title="Play Cry" aria-label="Play Pokémon cry audio"
+            (click)="playCry($event, 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/' + p.id + '.ogg')">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+              fill="none" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
             </svg>
           </button>
-          <button class="cry-btn main-cry-btn shine-btn" [class.active-shine]="isShiny()" (click)="toggleShiny()"
-            title="Toggle Shiny">
+          <button class="cry-btn main-cry-btn shine-btn" [class.active-shine]="isShiny()" title="Toggle Shiny"
+            aria-label="Toggle shiny artwork" (click)="toggleShiny()">
             ✦
           </button>
         </div>
