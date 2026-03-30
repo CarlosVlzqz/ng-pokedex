@@ -153,11 +153,13 @@
             @for (stat of p.stats; track stat.stat.name) {
             <div class="stat-row">
               <div class="stat-label">
-                <span class="stat-name">{{ stat.stat.name }}:</span>
+                <span class="stat-name">{{ formatStatName(stat.stat.name) }}</span>
                 <span class="stat-val">{{ stat.base_stat }}</span>
               </div>
               <div class="stat-bar-container">
-                <div class="stat-bar-fill" [style.width.%]="(stat.base_stat / 255) * 100"></div>
+                <div class="stat-bar-fill" [style.width.%]="getStatPercentage(stat.base_stat)"
+                  [style.background-color]="getStatColor(stat.base_stat)">
+                </div>
               </div>
             </div>
             }
@@ -172,11 +174,13 @@
               <h3 class="matchup-title">Weak To</h3>
               <div class="matchup-grid">
                 @for (w of weaknesses(); track w.name) {
-                <div class="matchup-item">
-                  <span class="type-badge small" [style.background-color]="getTypeColor(w.name)">
+                <div class="matchup-badge">
+                  <span class="badge-type" [style.background-color]="getTypeColor(w.name)">
                     {{ w.name }}
                   </span>
-                  <span class="matchup-multiplier">{{ w.multiplier }}x</span>
+                  <span class="badge-multiplier" [class.extreme-weak]="w.multiplier === 4">
+                    {{ w.multiplier }}x
+                  </span>
                 </div>
                 }
               </div>
@@ -188,11 +192,13 @@
               <h3 class="matchup-title">Resistant To</h3>
               <div class="matchup-grid">
                 @for (r of resistances(); track r.name) {
-                <div class="matchup-item">
-                  <span class="type-badge small" [style.background-color]="getTypeColor(r.name)">
+                <div class="matchup-badge">
+                  <span class="badge-type" [style.background-color]="getTypeColor(r.name)">
                     {{ r.name }}
                   </span>
-                  <span class="matchup-multiplier">{{ r.multiplier }}x</span>
+                  <span class="badge-multiplier" [class.extreme-resist]="r.multiplier === 0.25">
+                    {{ r.multiplier }}x
+                  </span>
                 </div>
                 }
               </div>
@@ -204,11 +210,13 @@
               <h3 class="matchup-title">Immune To</h3>
               <div class="matchup-grid">
                 @for (i of immunities(); track i.name) {
-                <div class="matchup-item">
-                  <span class="type-badge small" [style.background-color]="getTypeColor(i.name)">
+                <div class="matchup-badge">
+                  <span class="badge-type" [style.background-color]="getTypeColor(i.name)">
                     {{ i.name }}
                   </span>
-                  <span class="matchup-multiplier">{{ i.multiplier }}x</span>
+                  <span class="badge-multiplier">
+                    {{ i.multiplier }}x
+                  </span>
                 </div>
                 }
               </div>

@@ -310,4 +310,32 @@ export class PokemonDetail implements OnInit {
     traverse(node);
     return links;
   }
+
+  readonly MAX_STAT = 255;
+
+  getStatPercentage(baseStat: number): number {
+    return (baseStat / this.MAX_STAT) * 100;
+  }
+
+  getStatColor(baseStat: number): string {
+    if (baseStat < 50) return '#ff4e4e';      // Red (Low)
+    if (baseStat < 80) return '#f5ac78';      // Orange (Below Average)
+    if (baseStat < 100) return '#fae078';     // Yellow (Average)
+    if (baseStat < 120) return '#a7db8d';     // Light Green (Good)
+    if (baseStat < 150) return '#78c850';     // Green (Great)
+    return '#39cfc1';                         // Cyan/Teal (Outstanding)
+  }
+
+  formatStatName(statName: string): string {
+    const statMap: Record<string, string> = {
+      'hp': 'HP',
+      'attack': 'Attack',
+      'defense': 'Defense',
+      'special-attack': 'Sp. Atk',
+      'special-defense': 'Sp. Def',
+      'speed': 'Speed'
+    };
+    return statMap[statName] || statName;
+  }
+
 }
