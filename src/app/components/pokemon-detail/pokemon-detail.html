@@ -28,7 +28,10 @@
   <div class="pokemon-detail-card" [style.background]="cardBackground()">
 
     <div class="card-header">
-      <h2 class="pokemon-name">{{ p.name }} <span class="pokemon-id">#{{ p.id.toString().padStart(3, '0') }}</span></h2>
+      <h2 class="pokemon-name">{{ p.name }}</h2>
+      @if (japaneseName()) {
+      <div class="japanese-name">{{ japaneseName() }}</div>
+      }
     </div>
 
     <div class="card-body">
@@ -37,18 +40,21 @@
           <img #pokemonImage [src]="currentImageUrl()" [alt]="p.name" class="detail-sprite" (load)="onImageLoad()"
             crossorigin="anonymous">
         </div>
-        <!-- Main Cry Button -->
-        <button class="cry-btn main-cry-btn"
-          (click)="playCry($event, 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/' + p.id + '.ogg')">
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-            stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-          </svg>
-        </button>
-        <button class="toggle-btn shine-btn" (click)="toggleShiny()">
-          {{ isShiny() ? 'Show Regular Version' : 'Show Shiny Version' }}
-        </button>
+        <div class="action-row">
+          <div class="id-bubble">#{{ p.id.toString().padStart(4, '0') }}</div>
+          <button class="cry-btn main-cry-btn"
+            (click)="playCry($event, 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/' + p.id + '.ogg')"
+            title="Play Cry">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </button>
+          <button class="cry-btn main-cry-btn shine-btn" [class.active-shine]="isShiny()" (click)="toggleShiny()" title="Toggle Shiny">
+            ✦
+          </button>
+        </div>
       </div>
 
       <div class="card-right">
@@ -65,12 +71,6 @@
 
           @if (activeTab() === 'about') {
           <div class="tab-content about-tab">
-
-            @if (japaneseName()) {
-            <div class="info-item category-item">
-              <span class="japanese-name">{{ japaneseName() }}</span>
-            </div>
-            }
 
             <div class="info-item types-item">
               <span class="label">Types</span>
@@ -94,7 +94,6 @@
               </div>
             </div>
 
-
             @if (category()) {
             <div class="info-item category-item">
               <span class="label">Category</span>
@@ -104,10 +103,11 @@
 
             @if (description()) {
             <div class="info-item description-item">
-              <span class="label">Pokedex Entry</span>
+              <span class="label">Pokédex Entry</span>
               <p class="description-text">{{ description() }}</p>
             </div>
             }
+
           </div>
           }
 
