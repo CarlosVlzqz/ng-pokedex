@@ -59,14 +59,51 @@
 
       <div class="card-right">
         <div class="info-panel">
-          <div class="tabs-nav">
-            <button class="tab-btn" [class.active]="activeTab() === 'about'" (click)="switchTab('about')">About</button>
-            <button class="tab-btn" [class.active]="activeTab() === 'stats'" (click)="switchTab('stats')">Base
-              Stats</button>
-            <button class="tab-btn" [class.active]="activeTab() === 'matchups'"
-              (click)="switchTab('matchups')">Matchups</button>
-            <button class="tab-btn" [class.active]="activeTab() === 'evolutions'"
-              (click)="switchTab('evolutions')">Evolutions</button>
+          <div class="tabs-nav" role="tablist">
+
+            <button class="tab-btn" role="tab" [attr.aria-selected]="activeTab() === 'about'"
+              [class.active]="activeTab() === 'about'" (click)="switchTab('about')" title="About">
+              <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span class="tab-text">About</span>
+            </button>
+
+            <button class="tab-btn" role="tab" [attr.aria-selected]="activeTab() === 'stats'"
+              [class.active]="activeTab() === 'stats'" (click)="switchTab('stats')" title="Base Stats">
+              <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+              <span class="tab-text">Stats</span>
+            </button>
+
+            <button class="tab-btn" role="tab" [attr.aria-selected]="activeTab() === 'matchups'"
+              [class.active]="activeTab() === 'matchups'" (click)="switchTab('matchups')" title="Matchups">
+              <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              <span class="tab-text">Matchups</span>
+            </button>
+
+            <button class="tab-btn" role="tab" [attr.aria-selected]="activeTab() === 'evolutions'"
+              [class.active]="activeTab() === 'evolutions'" (click)="switchTab('evolutions')" title="Evolutions">
+              <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="6" y1="3" x2="6" y2="15"></line>
+                <circle cx="18" cy="6" r="3"></circle>
+                <circle cx="6" cy="18" r="3"></circle>
+                <path d="M18 9a9 9 0 0 1-9 9"></path>
+              </svg>
+              <span class="tab-text">Evolutions</span>
+            </button>
+
           </div>
 
           @if (activeTab() === 'about') {
