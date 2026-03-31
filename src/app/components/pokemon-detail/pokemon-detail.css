@@ -344,7 +344,7 @@
 .label {
   font-size: 0.9rem;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-color);
   text-transform: uppercase;
   letter-spacing: 1.2px;
   margin: 0;

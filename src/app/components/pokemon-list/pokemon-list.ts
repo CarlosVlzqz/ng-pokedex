@@ -27,7 +27,6 @@ export class PokemonList implements OnInit {
   private typedPokemons = signal<PokemonListItem[] | null>(null);
 
   searchQuery = signal<string>('');
-  // Use an array signal for selected types (signals don't track Set mutations)
   selectedTypes = signal<string[]>([]);
   dropdownOpen = signal<boolean>(false);
   isLoading = signal<boolean>(true);
@@ -45,12 +44,10 @@ export class PokemonList implements OnInit {
   hasTypeFilter = computed(() => this.selectedTypes().length > 0);
   hasAnyFilter = computed(() => this.selectedTypes().length > 0 || !!this.searchQuery());
 
-  // What renders: type filter base + search on top; falls back to infinite-scroll list when no type filter
   renderedPokemons = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
     const base = this.typedPokemons() ?? this.pokemons();
     if (!query) return base;
-    // When searching with no type filter, search the full 493; otherwise search within the typed list
     const searchBase = this.typedPokemons() ? base : this.allPokemons();
     return searchBase.filter(p => {
       const id = this.getPokemonId(p.url);
@@ -67,6 +64,7 @@ export class PokemonList implements OnInit {
     this.isLoading.set(true);
     this.pokemonService.getPokemonList(this.limit, 0).subscribe({
       next: (data) => {
+        console.log(data)
         this.pokemons.set(data);
         this.offset = this.limit;
         this.isLoading.set(false);
@@ -127,7 +125,6 @@ export class PokemonList implements OnInit {
     const requests = types.map(t => this.pokemonService.getPokemonByType(t, this.maxPokemon));
     forkJoin(requests).subscribe({
       next: (results) => {
-        // Union of all results, deduplicated by name, sorted by ID
         const seen = new Set<string>();
         const union: PokemonListItem[] = [];
         for (const list of results) {
@@ -173,7 +170,6 @@ export class PokemonList implements OnInit {
     if (windowHeight + scrollPos >= documentHeight - 300) this.loadMore();
   }
 
-  // Close dropdown when clicking outside
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
@@ -195,5 +191,17 @@ export class PokemonList implements OnInit {
     const id = this.getPokemonId(url);
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
   }
-}
 
+  getCardAuraColor(): string {
+    const types = this.selectedTypes();
+    if (types.length > 0) {
+      return this.getTypeColor(types[0]);
+    }
+    return 'rgba(255, 255, 255, 0.4)';
+  }
+
+  getPokemonTypeColor(pokemon: any): string {
+    const types = this.selectedTypes();
+    return types.length > 0 ? this.getTypeColor(types[0]) : 'rgba(255, 255, 255, 0.5)';
+  }
+}
