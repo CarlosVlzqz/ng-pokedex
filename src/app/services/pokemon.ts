@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, of, forkJoin } from 'rxjs';
+import { map, tap, switchMap } from 'rxjs/operators';
 
 export interface PokemonListResponse {
   count: number;
@@ -13,6 +13,7 @@ export interface PokemonListResponse {
 export interface PokemonListItem {
   name: string;
   url: string;
+  types: string[];
 }
 
 export interface PokemonDetail {
@@ -99,9 +100,24 @@ export class PokemonService {
     typePokemon: new Map<string, PokemonListItem[]>(),
   };
 
-  getPokemonList(limit: number = 151, offset: number = 0): Observable<PokemonListItem[]> {
+  getBasicPokemonList(limit: number = 151, offset: number = 0): Observable<PokemonListItem[]> {
     return this.http.get<PokemonListResponse>(`${this.baseUrl}/pokemon?limit=${limit}&offset=${offset}`)
-      .pipe(map(response => response.results));
+      .pipe(map(response => response.results.map(p => ({ ...p, types: [] }))));
+  }
+
+  getPokemonList(limit: number = 151, offset: number = 0): Observable<PokemonListItem[]> {
+    return this.http.get<PokemonListResponse>(`${this.baseUrl}/pokemon?limit=${limit}&offset=${offset}`).pipe(
+      switchMap(response => {
+        if (response.results.length === 0) return of([]);
+        const detailRequests = response.results.map(p => this.getPokemonDetail(p.name));
+        return forkJoin(detailRequests);
+      }),
+      map((details: PokemonDetail[]) => details.map(d => ({
+        name: d.name,
+        url: `${this.baseUrl}/pokemon/${d.id}/`,
+        types: d.types.map(t => t.type.name)
+      })))
+    );
   }
 
   getPokemonDetail(nameOrId: string | number): Observable<PokemonDetail> {
@@ -122,7 +138,6 @@ export class PokemonService {
 
     return this.http.get<PokemonSpecies>(`${this.baseUrl}/pokemon-species/${nameOrId}`).pipe(
       tap(data => {
-        // We don't have the standard ID here directly in the same way, but usually the nameOrId is enough
         this.cache.species.set(nameOrId, data);
       })
     );
@@ -147,14 +162,26 @@ export class PokemonService {
 
     return this.getTypeDetails(typeName).pipe(
       map(typeData => {
-        const filtered = typeData.pokemon
+        return typeData.pokemon
           .map(entry => entry.pokemon)
           .filter(p => {
             const id = parseInt(p.url.split('/').filter(Boolean).pop() ?? '0', 10);
             return id >= 1 && id <= maxId;
           });
-        this.cache.typePokemon.set(cacheKey, filtered);
-        return filtered;
+      }),
+      switchMap(filteredPokemons => {
+        if (filteredPokemons.length === 0) return of([]);
+        const detailRequests = filteredPokemons.map(p => this.getPokemonDetail(p.name));
+        return forkJoin(detailRequests);
+      }),
+      map((details: PokemonDetail[]) => {
+        const mappedList = details.map(d => ({
+          name: d.name,
+          url: `${this.baseUrl}/pokemon/${d.id}/`,
+          types: d.types.map(t => t.type.name)
+        }));
+        this.cache.typePokemon.set(cacheKey, mappedList);
+        return mappedList;
       })
     );
   }
@@ -168,4 +195,3 @@ export class PokemonService {
     );
   }
 }
-

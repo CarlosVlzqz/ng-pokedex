@@ -200,8 +200,9 @@ export class PokemonList implements OnInit {
     return 'rgba(255, 255, 255, 0.4)';
   }
 
-  getPokemonTypeColor(pokemon: any): string {
-    const types = this.selectedTypes();
-    return types.length > 0 ? this.getTypeColor(types[0]) : 'rgba(255, 255, 255, 0.5)';
+  getPokemonTypeColor(pokemon: PokemonListItem): string {
+    if (pokemon.types && pokemon.types.length > 0)
+      return this.getTypeColor(pokemon.types[0]);
+    return 'rgba(255, 255, 255, 0.4)';
   }
 }
